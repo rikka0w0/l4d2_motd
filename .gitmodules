@@ -1,0 +1,3 @@
+[submodule "l4d2query"]
+	path = l4d2query
+	url = https://github.com/rikka0w0/l4d2query.git

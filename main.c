@@ -13,11 +13,12 @@
 #include <stdlib.h>
 #include <libgen.h>
 #include <linux/limits.h>
+#include "l4d2query/l4d2query.h"
 
 #define MOTD_HTML "motd.html"
 #define PORT 8888
 
-int handle_svr_query(const char* addr, void** responce, size_t* len);
+int handle_svr_query(const char* addr, void** responce, size_t* len, int* memory_mode);
 
 typedef struct _cached_resources CachedResources;
 struct _cached_resources {
@@ -149,6 +150,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
                       size_t *upload_data_size, void **con_cls)
 {
 	
+	int memory_mode;
 	void* payload;
 	size_t len;
 	if (strcmp(url, "/svrquery") == 0) {
@@ -156,7 +158,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 		if (addr == NULL)
 			return MHD_NO;
 		
-		if (!handle_svr_query(addr, &payload, &len))
+		if (!handle_svr_query(addr, &payload, &len, &memory_mode))
 			return MHD_NO;
 	} else {
 		CachedResources* resource = get_cached_resource(url);
@@ -165,6 +167,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 		
 		payload = resource->rawdata;
 		len = resource->len;
+		memory_mode = MHD_RESPMEM_PERSISTENT;
 	}
 
 
@@ -172,7 +175,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
   	int ret;
  
 	response = MHD_create_response_from_buffer (
-			len, payload, MHD_RESPMEM_PERSISTENT);
+			len, payload, memory_mode);
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   	MHD_destroy_response (response);
 
@@ -212,11 +215,23 @@ int main ()
 	return 0;
 }
 
-int handle_svr_query(const char* addr, void** responce, size_t* len) {
-		char* busypage = "(1/8)";
-		*responce = busypage;
-		*len = strlen(busypage);
-		printf("svrquery = %s\n", addr);
+int handle_svr_query(const char* addr, void** responce, size_t* len, int* memory_mode) {
+	char buffer[512];
+	struct L4D2REP_QUERYSVRINFO result;
+	int ret = L4D2_QueryServerInfo(addr, &result, buffer, sizeof(buffer));
+
+	if (ret == L4D2REP_OK) {
+		*memory_mode = MHD_RESPMEM_MUST_FREE;
+		char* str = (char*) malloc(32);
+		snprintf(str, 32, "(%d/%d)", result.player_count, result.slots);
+		*responce = str;
+	} else {
+		*memory_mode = MHD_RESPMEM_PERSISTENT;
+		*responce = "(?/?)";
+	}
+	
+	*len = strlen(*responce);
+	printf("(svrquery = %s) <= %s\n", addr, (char*)*responce);
 
 	return 1;
 }
