@@ -1,0 +1,123 @@
+<html>
+<head>
+	<title>有双马尾的六花家的求生服 Rikka's L4D2 Server</title>
+	<meta charset='UTF-8'>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	    <style type="text/css">
+        body {
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: top center;
+            background-size: cover;
+        }
+
+        .button {
+            display: inline-block;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 10px;
+            border: none;
+            font: normal 48px/normal "Warnes", Helvetica, sans-serif;
+            color: rgba(255,255,255,1);
+            text-decoration: normal;
+            text-align: center;
+            -o-text-overflow: clip;
+            text-overflow: clip;
+            white-space: pre;
+            text-shadow: 0 0 10px rgba(255,255,255,1), 0 0 20px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,1), 0 0 40px #ff00de, 0 0 70px #ff00de, 0 0 80px #ff00de, 0 0 100px #ff00de;
+            -webkit-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+            -moz-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+            -o-transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+            transition: all 200ms cubic-bezier(0.42, 0, 0.58, 1);
+        }
+
+        /*.button:hover {
+                text-shadow: 0 0 10px rgba(255,255,255,1), 0 0 20px rgba(255,255,255,1), 0 0 30px rgba(255,255,255,1), 0 0 40px #00ffff, 0 0 70px #00ffff, 0 0 80px #00ffff, 0 0 100px #00ffff;
+            }*/
+    </style>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" OnLoad="swapPic()">
+	    <script LANGUAGE="JavaScript">
+        var images_count = 5;
+        var rand1 = 0;
+        var useRand = 0;
+        function swapPic() {
+            var imgnum = images_count - 1;
+            do {
+                var randnum = Math.random();
+                rand1 = Math.round((imgnum - 1) * randnum) + 1;
+            } while (rand1 == useRand);
+            useRand = rand1;
+
+            document.body.style.backgroundImage = "url('img/" + useRand + ".jpg')";
+        }
+    		</script>
+
+    <div title="Floating text!" style="
+            margin: auto;
+            width: 98%;
+            border: 3px solid #73AD21;
+            padding: 5px;
+            background: #ffffff;
+            text-align:center;
+    ">
+        Server Address 服务器地址:
+        <font color="red"><!--<a href="steam://connect/home.261day.com:27015">--><b>(CN中国)home.261day.com</b></font>
+        <font color="green"><!--<a href="steam://connect/103.242.135.195:27015/">-->(HK香港)103.242.135.195</font>
+        <font color="blue"><!--<a href="steam://connect/cszombie.gicp.net:27015">-->(AU澳洲)cszombie.gicp.net</font>
+        <br />
+        QQ裙: <font color="red"><b>641433181</b></font> 裙里可以约求生, <font color="red">还有dalao发女装照!</font>
+        三方图下载以及详细操作见裙
+    </div>
+
+    <div style="
+            margin: auto;
+            width: 20%;
+            border: 3px solid #73AD21;
+            padding: 5px;
+            background: #ffffff;
+            text-align:left;
+            float:left;
+            margin-top: 10px;
+    ">
+        <font color="red"><b> 击杀僵尸获得点数买东西!</b></font> <br />
+        聊天区指令教学: <br />
+        买东西: !buy <br />
+        换衣服: !csm或!lmc <br />
+        投票换图:
+        <br /> !chmap或!chmap2 <br />
+        <br />
+        Chat Commands: <br />
+        Buy stuff: !buy <br />
+        Change model: !csm or !lmc <br />
+        Vote for map:<br />
+        !chmap or !chmap2 <br />
+    </div>
+
+
+
+    <div id="outer" style="
+		position:absolute;
+		bottom:0px;
+		right:0px;
+		width:999px;
+		/*height:30px;*/
+  ">
+        <div style="
+				float:right;
+				width:9990px;
+				height:70px;
+				// border:1px solid #F00;
+				padding: 10px;
+				text-align: right;
+				margin-right:10px;
+				text-shadow: 0 0 10px #FF0000;
+		">
+            <div class="button">六花家的求生服</div>
+        </div>
+    </div>
+</body>
+</html>
