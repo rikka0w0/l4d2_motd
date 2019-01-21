@@ -203,7 +203,7 @@ int main ()
 	atexit(free_resources);
 
   	struct MHD_Daemon *daemon = 
-		MHD_start_daemon (MHD_USE_SELECT_INTERNALLY, PORT, NULL, NULL,
+		MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL,
 		&answer_to_connection, NULL, MHD_OPTION_END);
 
 	if (NULL == daemon)
