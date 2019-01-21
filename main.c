@@ -43,7 +43,7 @@ static size_t get_file_size(const char* filename)
 /*
  *	Check if the requested url is valid, if so, return 1, otherwise return 0.
  */
-int is_valid_resource(const char* url, char* actual_loc) {
+int is_valid_resource(const char* url, char* actual_loc, char* mime_type) {
 	char url_copy[PATH_MAX], url_copy2[PATH_MAX];
 	strcpy(url_copy, url);
 	strcpy(url_copy2, url);
@@ -54,10 +54,12 @@ int is_valid_resource(const char* url, char* actual_loc) {
 		if (strcmp(url_basename, "/") == 0) {
 			//printf("Index Request!\n");
 			strcpy(actual_loc, MOTD_HTML);
+			strcpy(mime_type, "text/html");
 			return 1;
 		} else if (strcmp(url_basename, "motd.html") == 0) {
 			//printf("Index Request!\n");
 			strcpy(actual_loc, MOTD_HTML);
+			strcpy(mime_type, "text/html");
 			return 1;
 		} else {
 			return 0;
@@ -72,6 +74,7 @@ int is_valid_resource(const char* url, char* actual_loc) {
 
 			//printf("Image Request!\n");
 			strcpy(actual_loc, url+1);
+			strcpy(mime_type, "image/jpeg");
 			return 1;
 		} else {
 			return 0;
@@ -81,9 +84,9 @@ int is_valid_resource(const char* url, char* actual_loc) {
 	return 0;
 }
 
-CachedResources* get_cached_resource(const char* url) {
+CachedResources* get_cached_resource(const char* url, char* mime_type) {
 	char actual_loc[PATH_MAX];
-	if (!is_valid_resource(url, actual_loc)) {
+	if (!is_valid_resource(url, actual_loc, mime_type)) {
 		printf("URL %s is invalid!\n", url);
 		return NULL;
 	}
@@ -149,7 +152,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
                       const char *version, const char *upload_data,
                       size_t *upload_data_size, void **con_cls)
 {
-	
+	char mime_type[32];
 	int memory_mode;
 	void* payload;
 	size_t len;
@@ -160,8 +163,10 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 		
 		if (!handle_svr_query(addr, &payload, &len, &memory_mode))
 			return MHD_NO;
+		
+		strcpy(mime_type, "text/html");
 	} else {
-		CachedResources* resource = get_cached_resource(url);
+		CachedResources* resource = get_cached_resource(url, mime_type);
 		if (resource == NULL)
 			return MHD_NO;
 		
@@ -174,8 +179,8 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
   	struct MHD_Response *response;
   	int ret;
  
-	response = MHD_create_response_from_buffer (
-			len, payload, memory_mode);
+	response = MHD_create_response_from_buffer (len, payload, memory_mode);
+	MHD_add_response_header (response, "Content-Type", mime_type);
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   	MHD_destroy_response (response);
 
