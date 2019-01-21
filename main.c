@@ -17,7 +17,7 @@
 #define MOTD_HTML "motd.html"
 #define PORT 8888
 
-
+int handle_svr_query(const char* addr, void** responce, size_t* len);
 
 typedef struct _cached_resources CachedResources;
 struct _cached_resources {
@@ -51,11 +51,11 @@ int is_valid_resource(const char* url, char* actual_loc) {
 
 	if (strcmp(url_dirname, "/") == 0) {
 		if (strcmp(url_basename, "/") == 0) {
-			printf("Index Request!\n");
+			//printf("Index Request!\n");
 			strcpy(actual_loc, MOTD_HTML);
 			return 1;
 		} else if (strcmp(url_basename, "motd.html") == 0) {
-			printf("Index Request!\n");
+			//printf("Index Request!\n");
 			strcpy(actual_loc, MOTD_HTML);
 			return 1;
 		} else {
@@ -69,7 +69,7 @@ int is_valid_resource(const char* url, char* actual_loc) {
 			url_basename[url_basename_len-2] == 'p' &&
 			url_basename[url_basename_len-1] == 'g') {
 
-			printf("Image Request!\n");
+			//printf("Image Request!\n");
 			strcpy(actual_loc, url+1);
 			return 1;
 		} else {
@@ -148,18 +148,31 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
                       const char *version, const char *upload_data,
                       size_t *upload_data_size, void **con_cls)
 {
-	// printf("answer_to_connection url=%s\n", url);
-
-	CachedResources* resource = get_cached_resource(url);
-	if (resource == NULL) {
-		return 0;
+	
+	void* payload;
+	size_t len;
+	if (strcmp(url, "/svrquery") == 0) {
+		const char* addr = MHD_lookup_connection_value(connection, MHD_GET_ARGUMENT_KIND, "addr");
+		if (addr == NULL)
+			return MHD_NO;
+		
+		if (!handle_svr_query(addr, &payload, &len))
+			return MHD_NO;
+	} else {
+		CachedResources* resource = get_cached_resource(url);
+		if (resource == NULL)
+			return MHD_NO;
+		
+		payload = resource->rawdata;
+		len = resource->len;
 	}
+
 
   	struct MHD_Response *response;
   	int ret;
  
 	response = MHD_create_response_from_buffer (
-			resource->len, resource->rawdata, MHD_RESPMEM_PERSISTENT);
+			len, payload, MHD_RESPMEM_PERSISTENT);
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   	MHD_destroy_response (response);
 
@@ -197,4 +210,13 @@ int main ()
 
 	MHD_stop_daemon (daemon);
 	return 0;
+}
+
+int handle_svr_query(const char* addr, void** responce, size_t* len) {
+		char* busypage = "(1/8)";
+		*responce = busypage;
+		*len = strlen(busypage);
+		printf("svrquery = %s\n", addr);
+
+	return 1;
 }
