@@ -56,42 +56,28 @@
         }
 
 	function includeHTML() {
-		var z, i, elmnt, server_addr, xhttp, server_prefix;
+		var z, i, elmnt, file, xhttp;
 		/*loop through a collection of all HTML elements:*/
 		z = document.getElementsByTagName("*");
 		for (i = 0; i < z.length; i++) {
 			elmnt = z[i];
-			server_addr = elmnt.getAttribute("server-addr");
-			if (server_addr) {
-				server_prefix = elmnt.getAttribute("server-prefix");
-				elmnt.innerHTML = server_prefix + server_addr + "(-/-)";
-			}
-		}
-
-		for (i = 0; i < z.length; i++) {
-			elmnt = z[i];
 			/*search for elements with a certain atrribute:*/
-			server_addr = elmnt.getAttribute("server-addr");
-			if (server_addr) {
+			file = elmnt.getAttribute("w3-include-html");
+			if (file) {
 				/*make an HTTP request using the attribute value as the file name:*/
 				xhttp = new XMLHttpRequest();
-				xhttp.onreadystatechange = (function(target) {
-					return function() {
-						var target_addr, targer_prefix;
-	 					if (this.readyState == 4) {
-							target_addr = target.getAttribute("server-addr");
-							targer_prefix = target.getAttribute("server-prefix");
-							if (this.status == 200) {
-								target.innerHTML = targer_prefix + target_addr + this.responseText;
-							}
-							target.removeAttribute("server-addr");
-							target.removeAttribute("server-prefix");
-						}
+				xhttp.onreadystatechange = function() {
+	 				if (this.readyState == 4) {
+						if (this.status == 200) {elmnt.innerHTML = elmnt.innerHTML+this.responseText;}
+						/*remove the attribute, and call this function once more:*/
+						elmnt.removeAttribute("w3-include-html");
+						includeHTML();
 					}
-
-      				})(elmnt);
-				xhttp.open("GET", "svrquery?addr=" + server_addr, true);
+      				}      
+				xhttp.open("GET", file, true);
 				xhttp.send();
+				/*exit the function:*/
+				return;
 			}
 		}
 	};
@@ -111,10 +97,10 @@
             background: #ffffff;
             text-align:center;
     ">
-        Server Address 服务器地址: <br /> 
-        <b><font color="red" server-addr="home.261day.com" server-prefix="(CN中国)"></font></b>
-        <font color="green" server-addr="103.242.135.195" server-prefix="(HK香港)"></font>
-        <font color="blue" server-addr="cszombie.gicp.net" server-prefix="(AU澳洲)"></font>
+        Server Address 服务器地址:
+        <b><font color="red" w3-include-html="svrquery?addr=nekopara.fun">(CN中国)nekopara.fun</font></b>
+        <font color="green" w3-include-html="svrquery?addr=14.1.98.107">(HK香港)14.1.98.107</font>
+        <font color="blue" w3-include-html="svrquery?addr=cszombie.gicp.net">(AU澳洲)cszombie.gicp.net</font>
         <br />
         QQ裙: <font color="red"><b>641433181</b></font> 裙里可以约求生, <font color="red">还有dalao发女装照!</font>
         三方图下载以及详细操作见裙

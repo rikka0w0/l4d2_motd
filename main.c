@@ -16,7 +16,7 @@
 #include "l4d2query/l4d2query.h"
 
 #define MOTD_HTML "motd.html"
-#define PORT 8888
+#define PORT 91
 
 int handle_svr_query(const char* addr, void** responce, size_t* len, int* memory_mode);
 
@@ -79,7 +79,7 @@ int is_valid_resource(const char* url, char* actual_loc, char* mime_type) {
 		} else {
 			return 0;
 		}
-	}	
+	}
 
 	return 0;
 }
@@ -121,7 +121,7 @@ CachedResources* get_cached_resource(const char* url, char* mime_type) {
 			free(newNode);
 			return NULL;
 		}
-	
+
 		// Read the resource file in binary format
 		FILE* pFile = fopen(actual_loc, "rb");
 		if (pFile == NULL) {
@@ -135,7 +135,7 @@ CachedResources* get_cached_resource(const char* url, char* mime_type) {
 
 		newNode->location = malloc(sizeof(char)*PATH_MAX);
 		strcpy(newNode->location, actual_loc);
-		
+
 		newNode->nextNode = cachedresources;	// Insert at the front;	
 		cachedresources = newNode; // Insert at the front;
 
@@ -160,16 +160,16 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 		const char* addr = MHD_lookup_connection_value(connection, MHD_GET_ARGUMENT_KIND, "addr");
 		if (addr == NULL)
 			return MHD_NO;
-		
+
 		if (!handle_svr_query(addr, &payload, &len, &memory_mode))
 			return MHD_NO;
-		
+
 		strcpy(mime_type, "text/html");
 	} else {
 		CachedResources* resource = get_cached_resource(url, mime_type);
 		if (resource == NULL)
 			return MHD_NO;
-		
+
 		payload = resource->rawdata;
 		len = resource->len;
 		memory_mode = MHD_RESPMEM_PERSISTENT;
@@ -178,7 +178,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 
   	struct MHD_Response *response;
   	int ret;
- 
+
 	response = MHD_create_response_from_buffer (len, payload, memory_mode);
 	MHD_add_response_header (response, "Content-Type", mime_type);
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
@@ -187,7 +187,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 	return ret;
 }
 
-static void free_resources(void) 
+static void free_resources(void)
 {
 	CachedResources* curNode = cachedresources;
 	while (curNode != NULL) {
@@ -196,7 +196,7 @@ static void free_resources(void)
 		free(curNode->rawdata);
 		free(curNode);
 		curNode = nextNode;
-	}	
+	}
 
 	printf("Motd Server Exit!\n");
 }
@@ -207,12 +207,14 @@ int main ()
 	printf("Motd Server Start!\n");
 	atexit(free_resources);
 
-  	struct MHD_Daemon *daemon = 
+  	struct MHD_Daemon *daemon =
 		MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL,
 		&answer_to_connection, NULL, MHD_OPTION_END);
 
-	if (NULL == daemon)
+	if (NULL == daemon) {
+		printf("[Error] Unable to start MOTD server deamon!\n");
 		return 1;
+	}
 
 	(void) getchar ();
 
@@ -234,7 +236,7 @@ int handle_svr_query(const char* addr, void** responce, size_t* len, int* memory
 		*memory_mode = MHD_RESPMEM_PERSISTENT;
 		*responce = "(?/?)";
 	}
-	
+
 	*len = strlen(*responce);
 	printf("(svrquery = %s) <= %s\n", addr, (char*)*responce);
 
