@@ -16,7 +16,7 @@
 #include "l4d2query/l4d2query.h"
 
 #define MOTD_HTML "motd.html"
-#define PORT 91
+#define PORT 9090
 
 int handle_svr_query(const char* addr, void** responce, size_t* len, int* memory_mode);
 
