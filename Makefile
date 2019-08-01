@@ -1,5 +1,5 @@
 CC := cc
-CFLAGS := -pthread -ggdb -D_GNU_SOURCE
+CFLAGS := -pthread -ggdb -D_GNU_SOURCE -g
 MAKE := make
 
 all: main.c

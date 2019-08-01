@@ -156,6 +156,9 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 	int memory_mode;
 	void* payload;
 	size_t len;
+
+	printf("answer_to_connection()\n");
+
 	if (strcmp(url, "/svrquery") == 0) {
 		const char* addr = MHD_lookup_connection_value(connection, MHD_GET_ARGUMENT_KIND, "addr");
 		if (addr == NULL)
@@ -181,6 +184,7 @@ static int answer_to_connection (void *cls, struct MHD_Connection *connection,
 
 	response = MHD_create_response_from_buffer (len, payload, memory_mode);
 	MHD_add_response_header (response, "Content-Type", mime_type);
+	MHD_add_response_header (response, MHD_HTTP_HEADER_CONNECTION, "close");
 	ret = MHD_queue_response (connection, MHD_HTTP_OK, response);
   	MHD_destroy_response (response);
 
@@ -208,8 +212,8 @@ int main ()
 	atexit(free_resources);
 
   	struct MHD_Daemon *daemon =
-		MHD_start_daemon (MHD_USE_SELECT_INTERNALLY | MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL,
-		&answer_to_connection, NULL, MHD_OPTION_END);
+		MHD_start_daemon (MHD_USE_SELECT_INTERNALLY |MHD_USE_DEBUG| MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL,
+		&answer_to_connection, NULL, MHD_OPTION_CONNECTION_TIMEOUT, 60, MHD_OPTION_END);
 
 	if (NULL == daemon) {
 		printf("[Error] Unable to start MOTD server deamon!\n");
