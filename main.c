@@ -212,7 +212,7 @@ int main ()
 	atexit(free_resources);
 
   	struct MHD_Daemon *daemon =
-		MHD_start_daemon (MHD_USE_SELECT_INTERNALLY |MHD_USE_DEBUG| MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL,
+		MHD_start_daemon (MHD_USE_DUAL_STACK | MHD_USE_SELECT_INTERNALLY |MHD_USE_DEBUG| MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL,
 		&answer_to_connection, NULL, MHD_OPTION_CONNECTION_TIMEOUT, 60, MHD_OPTION_END);
 
 	if (NULL == daemon) {
@@ -227,11 +227,10 @@ int main ()
 }
 
 int handle_svr_query(const char* addr, void** responce, size_t* len, int* memory_mode) {
-	char buffer[512];
 	struct L4D2REP_QUERYSVRINFO result;
-	int ret = L4D2_QueryServerInfo(addr, &result, buffer, sizeof(buffer));
+	int ret = L4D2_QueryServerInfo(addr, &result);
 
-	if (ret == L4D2REP_OK) {
+	if (L4D2REP_IS_OK(ret)) {
 		*memory_mode = MHD_RESPMEM_MUST_FREE;
 		char* str = (char*) malloc(32);
 		snprintf(str, 32, "(%d/%d)", result.player_count, result.slots);
